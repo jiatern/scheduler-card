@@ -71,9 +71,9 @@ export class DialogSelectWeekdays extends LitElement {
           </div>
         </ha-dialog-header>
         <div class="wrapper">
-          <ha-list>
+          <div class="list">
           ${this._renderWeekdayOptions()}
-          </ha-list>
+          </div>
         </div>
 
         <ha-dialog-footer slot="footer">
@@ -134,16 +134,16 @@ export class DialogSelectWeekdays extends LitElement {
 
     return listOptions.map((key) => {
       return html`
-        <ha-list-item
-          graphic="icon"
+        <div
+          class="item"
+          role="button"
+          tabindex="0"
           @click=${this._toggleSelectOption}
           option="${key}"
-          ?hasMeta=${key == WeekdayTypeCustom}
         >
-          ${isSelectedOption(key)
-          ? html`<ha-icon slot="graphic" icon="mdi:check"></ha-icon>`
-          : ''
-        }
+          <span class="graphic">
+            ${isSelectedOption(key) ? html`<ha-icon icon="mdi:check"></ha-icon>` : ''}
+          </span>
           ${key == WeekdayTypeCustom
           ? html`
             ${capitalizeFirstLetter(localize('ui.dialog.weekday_picker.choose', this.hass))}
@@ -153,15 +153,15 @@ export class DialogSelectWeekdays extends LitElement {
         }
 
           ${key == WeekdayTypeCustom
-          ? html`<ha-icon slot="meta" icon="mdi:chevron-right"></ha-icon>`
+          ? html`<ha-icon class="meta" icon="mdi:chevron-right"></ha-icon>`
           : ''
         }
-        </ha-list-item>
+        </div>
     `})
   }
 
   _toggleSelectOption(ev: Event) {
-    const option = (ev.target as HTMLElement).getAttribute("option") as TWeekday | typeof WeekdayTypeCustom;
+    const option = (ev.currentTarget as HTMLElement).getAttribute("option") as TWeekday | typeof WeekdayTypeCustom;
     let weekdays = [...this._params!.weekdays];
     if (option == WeekdayTypeCustom) {
       weekdays = this.selectedWeekdays;
@@ -179,7 +179,7 @@ export class DialogSelectWeekdays extends LitElement {
       weekdays = [...weekdays, option];
     }
     this._params = Object.assign(this._params!, { weekdays: weekdays });
-    (ev.target as HTMLInputElement).blur();
+    (ev.currentTarget as HTMLElement).blur();
     this.requestUpdate();
   }
 
@@ -203,14 +203,23 @@ export class DialogSelectWeekdays extends LitElement {
         color: var(--primary-text-color);
         padding: 0px 12px;
       }
-      ha-list {
-        --mdc-list-vertical-padding: 0px;
+      .item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-height: 48px;
+        padding: 0px 20px;
+        cursor: pointer;
       }
-      ha-list-item[disabled] {
-        color: var(--disabled-text-color);
+      .item:hover {
+        background: rgba(var(--rgb-primary-text-color), 0.04);
       }
-      ha-list-item.nested {
-        --mdc-list-side-padding: 36px;
+      .graphic {
+        display: flex;
+        width: 24px;
+      }
+      .meta {
+        margin-inline-start: auto;
       }
       .badge {
         height: 24px;
